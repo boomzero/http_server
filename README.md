@@ -13,7 +13,11 @@ It accepts one argument, the port you wnat to bind to. Nothing else.
 It is definately not standard compliant, however it should work.
 
 
-## benchmarks
+## Benchmarks
+
+`http-server` is very fast. It is even faster than lightpd in my testing.
+Each thread uses around 10% CPU during peak load, so CPU use would be around 80%.
+You can reduce the number of threads, however it probably wouldn't work as well.
 
 ```
 This is ApacheBench, Version 2.3 <$Revision: 1903618 $>
