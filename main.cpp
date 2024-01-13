@@ -5,6 +5,7 @@
 #include <sys/wait.h>
 #include "unistd.h"
 #include <cerrno>
+#include <arpa/inet.h>
 
 std::ifstream fin;
 
@@ -12,16 +13,16 @@ int main(int argc, char **argv) {
     //read args for the port to listen on
     int port = 8080;
     if (argc == 1) {
-        std::cout << "Defaulting to port 8080\n";
+        std::clog << "Defaulting to port 8080\n";
     } else if (argc != 2) {
-        std::cout << "Usage: ./server <port to bind on>\n";
+        std::cerr << "Usage: ./server <port to bind on>\n";
         return 1;
     } else {
         port = std::stoi(argv[1]);
     }
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
-        std::cout << "Error creating socket\n";
+        std::cerr << "Error creating socket\n";
         return 1;
     }
     struct sockaddr_in addr{};
@@ -30,7 +31,7 @@ int main(int argc, char **argv) {
     addr.sin_addr.s_addr = INADDR_ANY;
     int bindfd = bind(sockfd, (struct sockaddr *) &addr, sizeof(addr));
     if (bindfd == -1) {
-        std::cout << "Error binding socket\n";
+        std::cerr << "Error binding socket\n";
         return 1;
     }
     listen(sockfd, 5);
@@ -39,13 +40,18 @@ int main(int argc, char **argv) {
     while (true) {
         int newfd = accept(sockfd, nullptr, nullptr);
         if (newfd == -1) {
-            std::cout << "Error accepting connection\n";
+            std::cerr << "Error accepting connection\n";
             std::cerr << errno << std::endl;
+            continue;
         }
+        //log the user's ip
+        struct sockaddr_in addr{};
+        socklen_t len = sizeof(addr);
+        getpeername(newfd, (struct sockaddr *) &addr, &len);
         char buf[1024] = {'\0'};
         int recvfd = recv(newfd, buf, 1024, 0);
         if (recvfd == -1) {
-            std::cout << "Error receiving data\n";
+            std::cerr << "Error receiving data\n";
         }
         std::string res = buf;
         std::string reqMethod = res.substr(0, res.find(' ')), reqPath = res.substr(res.find(' ') + 1, res.find(' ',
@@ -55,8 +61,9 @@ int main(int argc, char **argv) {
                                                                                                       res.find(
                                                                                                               ' ') -
                                                                                                       1);
-        std::cout << reqMethod << " at " << reqPath << " at " << time(nullptr) << std::endl;
-        //std::cout << res << std::endl;
+        std::clog << reqMethod << " at " << reqPath << " at " << time(nullptr) << " from " << inet_ntoa(addr.sin_addr)
+                  << std::endl;
+        //std::clog << res << std::endl;
         if (reqPath == "/") reqPath = "/index.html";
         fin.open(reqPath.substr(1));
         std::string data;
@@ -93,6 +100,5 @@ int main(int argc, char **argv) {
         }
         send(newfd, data.c_str(), data.length(), 0);
         shutdown(newfd, SHUT_RDWR);
-        std::cout << std::endl;
     }
 }
