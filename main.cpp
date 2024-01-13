@@ -34,8 +34,9 @@ int main(int argc, char **argv) {
         std::cerr << "Error binding socket\n";
         return 1;
     }
-    listen(sockfd, 5);
+    listen(sockfd, 20);
     std::clog << "Listening for connections\n";
+    fork();
     fork();
     fork();
     fork();
@@ -68,7 +69,7 @@ int main(int argc, char **argv) {
                                                                                                       1);
         std::clog << reqMethod << " at " << reqPath << " at " << time(nullptr) << " from "
                   << inet_ntoa(clientAddress.sin_addr)
-                  << std::endl;
+                  << '\n';
         //std::clog << res << std::endl;
         if (reqPath.find("..") != std::string::npos) {
             std::cerr
@@ -103,8 +104,28 @@ int main(int argc, char **argv) {
         } else {
             data = "HTTP/1.0 200 OK\n"
                    "Server: http-server\n"
-                   "Content-Type: text/html; charset=UTF-8\n"
-                   "Connection: close\r\n\r\n";
+                   "Connection: close\n";
+            if (reqPath.substr(reqPath.find_last_of('.') + 1) == "html") data += "Content-Type: text/html; charset=UTF-8\n";
+            else if (reqPath.substr(reqPath.find_last_of('.') + 1) == "css") data += "Content-Type: text/css\n";
+            else if (reqPath.substr(reqPath.find_last_of('.') + 1) == "js") data += "Content-Type: text/javascript\n";
+            else if (reqPath.substr(reqPath.find_last_of('.') + 1) == "png") data += "Content-Type: image/png\n";
+            else if (reqPath.substr(reqPath.find_last_of('.') + 1) == "jpg") data += "Content-Type: image/jpeg\n";
+            else if (reqPath.substr(reqPath.find_last_of('.') + 1) == "gif") data += "Content-Type: image/gif\n";
+            else if (reqPath.substr(reqPath.find_last_of('.') + 1) == "ico") data += "Content-Type: image/x-icon\n";
+            else if (reqPath.substr(reqPath.find_last_of('.') + 1) == "txt") data += "Content-Type: text/plain\n";
+            else if (reqPath.substr(reqPath.find_last_of('.') + 1) == "pdf") data += "Content-Type: application/pdf\n";
+            else if (reqPath.substr(reqPath.find_last_of('.') + 1) == "mp3") data += "Content-Type: audio/mpeg\n";
+            else if (reqPath.substr(reqPath.find_last_of('.') + 1) == "mp4") data += "Content-Type: video/mp4\n";
+            else if (reqPath.substr(reqPath.find_last_of('.') + 1) == "zip") data += "Content-Type: application/zip\n";
+            else if (reqPath.substr(reqPath.find_last_of('.') + 1) == "gz") data += "Content-Type: application/gzip\n";
+            else if (reqPath.substr(reqPath.find_last_of('.') + 1) == "tar") data += "Content-Type: application/x-tar\n";
+            else if (reqPath.substr(reqPath.find_last_of('.') + 1) == "xml") data += "Content-Type: application/xml\n";
+            else if (reqPath.substr(reqPath.find_last_of('.') + 1) == "json") data += "Content-Type: application/json\n";
+            else if (reqPath.substr(reqPath.find_last_of('.') + 1) == "svg") data += "Content-Type: image/svg+xml\n";
+            else if (reqPath.substr(reqPath.find_last_of('.') + 1) == "woff") data += "Content-Type: font/woff\n";
+            else if (reqPath.substr(reqPath.find_last_of('.') + 1) == "woff2") data += "Content-Type: font/woff2\n";
+            else data += "\n";
+            data += "\n";
             std::string line;
             while (getline(fin, line)) {
                 data += line + "\n";
