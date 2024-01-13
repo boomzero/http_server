@@ -1,7 +1,7 @@
 # http-server
 
 <img width="1436" alt="image" src="https://github.com/boomzero/http_server/assets/85378277/d9b90225-269e-4b8b-92bd-1eb72b64dfb9">
-<figcaption> a Website is being with http-server </figcaption>
+<figcaption> a website being served with http-server </figcaption>
 
 
 ***
