@@ -35,12 +35,14 @@ int main(int argc, char **argv) {
         return 1;
     }
     listen(sockfd, 5);
+    std::clog << "Listening for connections\n";
+    fork();
     fork();
     fork();
     while (true) {
         struct sockaddr_in clientAddress{};
         socklen_t clientAddressLength = sizeof(clientAddress);
-        int newfd = accept(sockfd, (struct sockaddr *)&clientAddress, &clientAddressLength);
+        int newfd = accept(sockfd, (struct sockaddr *) &clientAddress, &clientAddressLength);
         if (newfd == -1) {
             std::cerr << "Error accepting connection\n";
             std::cerr << errno << std::endl;
@@ -59,13 +61,19 @@ int main(int argc, char **argv) {
                                                                                                       res.find(
                                                                                                               ' ') -
                                                                                                       1);
-        std::clog << reqMethod << " at " << reqPath << " at " << time(nullptr) << " from " << inet_ntoa(clientAddress.sin_addr)
+        std::clog << reqMethod << " at " << reqPath << " at " << time(nullptr) << " from "
+                  << inet_ntoa(clientAddress.sin_addr)
                   << std::endl;
         //std::clog << res << std::endl;
+        if (reqPath.find("..") != std::string::npos) {
+            std::cerr << "Error: path contains .. (This is a security protection against directory traversal attacks)\nShutting down connection\n";
+            shutdown(newfd, SHUT_RDWR);
+            continue;
+        }
         if (reqPath == "/") reqPath = "/index.html";
         fin.open(reqPath.substr(1));
         std::string data;
-        if (!fin.is_open()) {
+        if (!fin.is_open() || reqMethod != "GET") {
             data = "HTTP/1.0 404 Not Found\n"
                    "Server: http-server\n"
                    "Content-Type: text/html\n"
@@ -97,8 +105,8 @@ int main(int argc, char **argv) {
             }
         }
         int sentDat = send(newfd, data.c_str(), data.length(), 0);
-        if(sentDat<data.length()) std::cerr << "Error sending data\n";
+        if (sentDat < data.length()) std::cerr << "Warning: problem sending data: data not complete\n";
         fin.close();
-        shutdown(newfd, SHUT_RDWR);
+        close(newfd);
     }
 }
