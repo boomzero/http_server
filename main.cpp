@@ -54,6 +54,11 @@ int main(int argc, char **argv) {
             std::cerr << "Error receiving data\n";
         }
         std::string res = buf;
+        if (res.empty() || res.find(' ') == std::string::npos) {
+            std::cerr << "Error: invalid request\n";
+            close(newfd);
+            continue;
+        }
         std::string reqMethod = res.substr(0, res.find(' ')), reqPath = res.substr(res.find(' ') + 1, res.find(' ',
                                                                                                                res.find(
                                                                                                                        ' ') +
@@ -66,7 +71,8 @@ int main(int argc, char **argv) {
                   << std::endl;
         //std::clog << res << std::endl;
         if (reqPath.find("..") != std::string::npos) {
-            std::cerr << "Error: path contains .. (This is a security protection against directory traversal attacks)\nShutting down connection\n";
+            std::cerr
+                    << "Error: path contains .. (This is a security protection against directory traversal attacks)\nShutting down connection\n";
             shutdown(newfd, SHUT_RDWR);
             continue;
         }
