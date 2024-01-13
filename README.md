@@ -10,7 +10,7 @@
 
 It accepts one argument, the port you wnat to bind to. Nothing else.
 
-It is definately not standard compliant, however it should work.
+It is loosely complies with HTTP/1.0, so it should work.
 
 
 ## Benchmarks
