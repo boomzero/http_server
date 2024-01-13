@@ -35,8 +35,8 @@ int main(int argc, char **argv) {
         return 1;
     }
     listen(sockfd, 5);
-    //fork();
-    //fork();
+    fork();
+    fork();
     while (true) {
         struct sockaddr_in clientAddress{};
         socklen_t clientAddressLength = sizeof(clientAddress);
