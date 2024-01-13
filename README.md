@@ -11,3 +11,63 @@
 It accepts one argument, the port you wnat to bind to. Nothing else.
 
 It is definately not standard compliant, however it should work.
+
+
+## benchmarks
+
+```
+This is ApacheBench, Version 2.3 <$Revision: 1903618 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 192.168.10.5 (be patient)
+Completed 10000 requests
+Completed 20000 requests
+Completed 30000 requests
+Completed 40000 requests
+Completed 50000 requests
+Completed 60000 requests
+Completed 70000 requests
+Completed 80000 requests
+Completed 90000 requests
+Completed 100000 requests
+Finished 100000 requests
+
+
+Server Software:        http-server
+Server Hostname:        192.168.10.5
+Server Port:            8086
+
+Document Path:          /
+Document Length:        145 bytes
+
+Concurrency Level:      5
+Time taken for tests:   29.350 seconds
+Complete requests:      100000
+Failed requests:        0
+Non-2xx responses:      100000
+Total transferred:      23300000 bytes
+HTML transferred:       14500000 bytes
+Requests per second:    3407.11 [#/sec] (mean)
+Time per request:       1.468 [ms] (mean)
+Time per request:       0.294 [ms] (mean, across all concurrent requests)
+Transfer rate:          775.25 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.2      0      11
+Processing:     0    1   0.3      1      18
+Waiting:        0    1   0.2      1      16
+Total:          0    1   0.3      1      18
+
+Percentage of the requests served within a certain time (ms)
+  50%      1
+  66%      1
+  75%      1
+  80%      2
+  90%      2
+  95%      2
+  98%      2
+  99%      2
+ 100%     18 (longest request)
+```
