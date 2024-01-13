@@ -35,19 +35,17 @@ int main(int argc, char **argv) {
         return 1;
     }
     listen(sockfd, 5);
-    fork();
-    fork();
+    //fork();
+    //fork();
     while (true) {
-        int newfd = accept(sockfd, nullptr, nullptr);
+        struct sockaddr_in clientAddress{};
+        socklen_t clientAddressLength = sizeof(clientAddress);
+        int newfd = accept(sockfd, (struct sockaddr *)&clientAddress, &clientAddressLength);
         if (newfd == -1) {
             std::cerr << "Error accepting connection\n";
             std::cerr << errno << std::endl;
             continue;
         }
-        //log the user's ip
-        struct sockaddr_in addr{};
-        socklen_t len = sizeof(addr);
-        getpeername(newfd, (struct sockaddr *) &addr, &len);
         char buf[1024] = {'\0'};
         int recvfd = recv(newfd, buf, 1024, 0);
         if (recvfd == -1) {
@@ -61,14 +59,14 @@ int main(int argc, char **argv) {
                                                                                                       res.find(
                                                                                                               ' ') -
                                                                                                       1);
-        std::clog << reqMethod << " at " << reqPath << " at " << time(nullptr) << " from " << inet_ntoa(addr.sin_addr)
+        std::clog << reqMethod << " at " << reqPath << " at " << time(nullptr) << " from " << inet_ntoa(clientAddress.sin_addr)
                   << std::endl;
         //std::clog << res << std::endl;
         if (reqPath == "/") reqPath = "/index.html";
         fin.open(reqPath.substr(1));
         std::string data;
         if (!fin.is_open()) {
-            data = "HTTP/1.1 404 Not Found\n"
+            data = "HTTP/1.0 404 Not Found\n"
                    "Server: http-server\n"
                    "Content-Type: text/html\n"
                    "Connection: close\r\n\r\n";
@@ -89,7 +87,7 @@ int main(int argc, char **argv) {
                         "</html>\n";
             }
         } else {
-            data = "HTTP/1.1 200 OK\n"
+            data = "HTTP/1.0 200 OK\n"
                    "Server: http-server\n"
                    "Content-Type: text/html; charset=UTF-8\n"
                    "Connection: close\r\n\r\n";
@@ -98,7 +96,9 @@ int main(int argc, char **argv) {
                 data += line + "\n";
             }
         }
-        send(newfd, data.c_str(), data.length(), 0);
+        int sentDat = send(newfd, data.c_str(), data.length(), 0);
+        if(sentDat<data.length()) std::cerr << "Error sending data\n";
+        fin.close();
         shutdown(newfd, SHUT_RDWR);
     }
 }
