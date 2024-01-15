@@ -19,6 +19,7 @@ It is loosely complies with HTTP/1.0, so it should work.
 Each thread uses around 10% CPU during peak load, so CPU use would be around 80%.
 You can reduce the number of threads, however it probably wouldn't work as well.
 
+The following results are produced on a Raspberry Pi 4 with 2 GB of RAM:
 ```
 This is ApacheBench, Version 2.3 <$Revision: 1903618 $>
 Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
